@@ -1,1 +1,108 @@
-Hello World
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { motion } from "framer-motion";
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import { useTranslation } from "react-i18next";
+
+const translations = {
+  en: {
+    name: "Name",
+    contact: "Contact Form",
+    message: "Message",
+    submit: "Submit",
+    intro: "Hi, I'm [Your Name]! Welcome to my resume site!",
+    thankYou: "Thank you for reaching out!",
+  },
+  ru: {
+    name: "Имя",
+    contact: "Форма обратной связи",
+    message: "Сообщение",
+    submit: "Отправить",
+    intro: "Привет, я [Ваше Имя]! Добро пожаловать на мой сайт-резюме!",
+    thankYou: "Спасибо за ваш отклик!",
+  },
+};
+
+i18n.use(initReactI18next).init({
+  resources: {
+    en: { translation: translations.en },
+    ru: { translation: translations.ru },
+  },
+  lng: "en",
+  fallbackLng: "en",
+});
+
+export default function ResumeSite() {
+  const { t } = useTranslation();
+  const [formData, setFormData] = useState({ name: "", message: "" });
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 3000);
+  };
+
+  const changeLanguage = (lng) => i18n.changeLanguage(lng);
+
+  return (
+    <div className="min-h-screen p-10 bg-gray-50">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-3xl mx-auto"
+      >
+        <h1 className="text-4xl font-bold mb-4">{t("intro")}</h1>
+        <div className="mb-6 flex gap-4">
+          <Button onClick={() => changeLanguage("en")}>EN</Button>
+          <Button onClick={() => changeLanguage("ru")}>RU</Button>
+        </div>
+
+        <Card className="p-6">
+          <CardContent>
+            <h2 className="text-2xl font-semibold mb-4">{t("contact")}</h2>
+            {submitted ? (
+              <p className="text-green-600">{t("thankYou")}</p>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block mb-1 text-sm font-medium">
+                    {t("name")}
+                  </label>
+                  <Input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-medium">
+                    {t("message")}
+                  </label>
+                  <Textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <Button type="submit">{t("submit")}</Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
+  );
+}
